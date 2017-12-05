@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results skipped="0" failed="0" total="1" passed="1">
+  <reporter-output>
+  </reporter-output>
+  <suite name="Default suite" duration-ms="44763" started-at="2017-12-04T07:46:44Z" finished-at="2017-12-04T07:47:28Z">
+    <groups>
+    </groups>
+    <test name="Default test" duration-ms="44763" started-at="2017-12-04T07:46:44Z" finished-at="2017-12-04T07:47:28Z">
+      <class name="my.com.selenex.App">
+        <test-method status="PASS" signature="setup()[pri:0, instance:my.com.selenex.App@4501b7af]" name="setup" is-config="true" duration-ms="13" started-at="2017-12-04T15:46:44Z" finished-at="2017-12-04T15:46:44Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- setup -->
+        <test-method status="PASS" signature="executeTest()[pri:0, instance:my.com.selenex.App@4501b7af]" name="executeTest" duration-ms="44738" started-at="2017-12-04T15:46:44Z" finished-at="2017-12-04T15:47:28Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- executeTest -->
+      </class> <!-- my.com.selenex.App -->
+    </test> <!-- Default test -->
+  </suite> <!-- Default suite -->
+</testng-results>
