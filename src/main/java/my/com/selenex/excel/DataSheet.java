@@ -33,6 +33,7 @@ import my.com.selenex.vo.Cascade;
 import my.com.selenex.vo.ResultReport;
 import my.com.selenex.vo.Scenario;
 import my.com.selenex.vo.Table;
+import my.com.selenex.vo.Texts;
 
 /**
  * 
@@ -41,7 +42,7 @@ import my.com.selenex.vo.Table;
  */
 public class DataSheet {
 	
-	protected Logger logger;
+	static Logger logger = Logger.getLogger(DataSheet.class);
 	protected HSSFWorkbook workbook;
 	protected HSSFWorkbook outputWorkbook;
 	protected String outputFileName;
@@ -72,8 +73,7 @@ public class DataSheet {
 	 * @param resultPath
 	 * @param logger
 	 */
-	public DataSheet(File input, String resultPath, Logger logger) {
-		this.logger = logger;
+	public DataSheet(File input, String resultPath) {
 		try {
 			this.workbook = new HSSFWorkbook(new FileInputStream(input));
 			outputFileName = input.getName().replace(".xls", "_result.xls");
@@ -91,8 +91,7 @@ public class DataSheet {
 	 * @param resultPath
 	 * @param logger
 	 */
-	public DataSheet(File input, String resultPath, Logger logger, JSONObject actions) {
-		this.logger = logger;
+	public DataSheet(File input, String resultPath, JSONObject actions) {
 		this.actions = actions;
 		try {
 			this.workbook = new HSSFWorkbook(new FileInputStream(input));
@@ -429,9 +428,64 @@ public class DataSheet {
 	 * @return
 	 * @throws Exception
 	 */
+	private List<Texts> populateTextsValidationDetails(String sheetName) throws Exception {
+
+		HSSFSheet sheet = workbook.getSheet(sheetName);
+		Row row = null;
+		Iterator<Row> rowIterator = sheet.iterator();
+
+		List<String> headers = new ArrayList<String>();
+		// Get the header index
+		if (rowIterator.hasNext()) {
+			row = rowIterator.next();
+			headers.addAll(getRowValue(row));
+		}
+
+		//Put annotation details entries into map
+		List<Texts> result = new ArrayList<>();
+		while (rowIterator.hasNext()) {
+			row = rowIterator.next();
+			Texts text = new Texts();
+			for (Cell cell : readCellsInrow(row)) {
+				String header = headers.get(cell.getColumnIndex());
+				String cellString = cell.getStringCellValue();
+				switch (header.toLowerCase()) {
+				case Texts.CHILD:
+					text.setChild(cellString);
+					break;
+					
+				case Texts.REGEX:
+					text.setRegex(cellString);
+					break;
+				
+				case Texts.REMARK:
+					text.setRemark(cellString);
+					break;
+
+				default:
+					logger.info("Column " +  cell.getStringCellValue() + " is not supported for @texts annotation");
+					break;
+				}
+			}
+			
+			Gson gson = new GsonBuilder().setPrettyPrinting().create();
+			logger.info("populateCascadeValidationDetails(" + sheetName + "):" + gson.toJson(text));
+			if (text.validateMandatoryFields()) {
+				logger.info("Adding "+ gson.toJson(text));
+				result.add(text);
+			}
+
+		}
+		return result;
+	}
+	
+	/**
+	 * 
+	 * @param sheetName
+	 * @return
+	 * @throws Exception
+	 */
 	private List<Table> populateTablesValidationDetails(String sheetName) throws Exception {
-		System.out.println("@@@@sheetName:"+ sheetName);
-		logger.info("@@@@sheetName:"+ sheetName);
 		HSSFSheet sheet = workbook.getSheet(sheetName);
 		Row row = null;
 		Iterator<Row> rowIterator = sheet.iterator();
@@ -700,16 +754,18 @@ public class DataSheet {
 				continue;
 			}
 			if (scenario.getAction().equals("input")) {
-				int idx = scenario.getValue().indexOf(".");
-				String sheetName = scenario.getValue().substring(1, idx);
-
-				// Avoid duplicated input
-				if (!sheetNames.contains(sheetName)) {
-					sheetNames.add(sheetName);
-					try {
-						input.put(sheetName, populateExcelInput(sheetName));
-					} catch (Exception e) {
-						e.printStackTrace();
+				if (scenario.getValue().startsWith("&")) {
+					int idx = scenario.getValue().indexOf(".");
+					String sheetName = scenario.getValue().substring(1, idx);
+	
+					// Avoid duplicated input
+					if (!sheetNames.contains(sheetName)) {
+						sheetNames.add(sheetName);
+						try {
+							input.put(sheetName, populateExcelInput(sheetName));
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 					}
 				}
 			}
@@ -742,9 +798,8 @@ public class DataSheet {
 				continue;
 			}
 			if (scenario.getAction().equals("validate-cascade")) {
-				String annotation = "@cascade.";
-				int idx = scenario.getValue().indexOf(annotation);
-				String sheetName = scenario.getValue().substring(idx + annotation.length());
+				int idx = scenario.getValue().indexOf(Cascade.indicator);
+				String sheetName = scenario.getValue().substring(idx + Cascade.indicator.length());
 
 				// Avoid duplicated input
 				if (!sheetNames.contains(sheetName)) {
@@ -784,9 +839,8 @@ public class DataSheet {
 				continue;
 			}
 			if (scenario.getAction().equals("validate-column")) {
-				String annotation = "@table.";
-				int idx = scenario.getValue().indexOf(annotation);
-				String sheetName = scenario.getValue().substring(idx + annotation.length());
+				int idx = scenario.getValue().indexOf(Table.indicator);
+				String sheetName = scenario.getValue().substring(idx + Table.indicator.length());
 
 				// Avoid duplicated input
 				if (!sheetNames.contains(sheetName)) {
@@ -818,17 +872,23 @@ public class DataSheet {
 		List<String> sheetNames = new ArrayList<String>();
 		for (Scenario scenario : loadScenario()) {
 			if (scenario.getAction().equals("input")) {
-				int idx = scenario.getValue().indexOf(".");
-				String sheetName = scenario.getValue().substring(1, idx);
-
-				// Avoid duplicated input
-				if (!sheetNames.contains(sheetName)) {
-					sheetNames.add(sheetName);
-					try {
-						input.put(sheetName, populateExcelInput(sheetName));
-					} catch (Exception e) {
-						e.printStackTrace();
+				if (scenario.getValue().startsWith("&")) {
+					int idx = scenario.getValue().indexOf(".");
+					String sheetName = scenario.getValue().substring(1, idx);
+	
+					// Avoid duplicated input
+					if (!sheetNames.contains(sheetName)) {
+						sheetNames.add(sheetName);
+						try {
+							input.put(sheetName, populateExcelInput(sheetName));
+						} catch (Exception e) {
+							e.printStackTrace();
+						}
 					}
+				}
+				else {
+					//TODO:Fix input
+					logger.error("Missing sheet reference.");
 				}
 			}
 		}
@@ -895,6 +955,80 @@ public class DataSheet {
 			setCellColor(cell, HSSFColor.LIGHT_TURQUOISE.index);
 		}
 		resultRowCnts.put(sheetName, resultRowCnts.get(sheetName)+ 1);
+	}
+
+	
+	/**
+	 * 
+	 * @param scenarioSheet
+	 * @return
+	 * @throws IOException 
+	 * @throws FileNotFoundException 
+	 */
+	public LinkedHashMap<?, ?> prepareMultiFieldsValidation(String scenarioSheet) 
+			throws FileNotFoundException, IOException {
+
+		LinkedHashMap<String,List<Texts>> annotations = new LinkedHashMap<>();
+		List<String> sheetNames = new ArrayList<String>();
+		for (Scenario scenario : loadScenario()) {
+			if (!scenario.validateMandatoryField()) {
+				continue;
+			}
+			
+			if (!scenarioSheet.equals(scenario.getScenarioTagged())) {
+				continue;
+			}
+			if (scenario.getAction().equals("validate-texts")) {
+				String annotation = "@texts.";
+				int idx = scenario.getValue().indexOf(annotation);
+				String sheetName = scenario.getValue().substring(idx + annotation.length());
+
+				// Avoid duplicated input
+				if (!sheetNames.contains(sheetName)) {
+					sheetNames.add(sheetName);
+					try {
+						annotations.put(sheetName, populateTextsValidationDetails(sheetName));
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				Gson gson = new GsonBuilder().setPrettyPrinting().create();
+				logger.info("preparTextsValidation(" + scenarioSheet + "):" + gson.toJson(annotations.get(annotation)));
+			}
+		}
+		return annotations;
+	}
+	
+	
+	/**
+	 * Initialize Configuration
+	 * @return
+	 */
+	public Map<String, String> readConfig() {
+		Map<String, String> map = new HashMap<>();
+		HSSFSheet sheet = workbook.getSheet("$config$");
+		logger.info("sheet:" + sheet);
+		Row row = null;
+		Iterator<Row> rowIterator = sheet.iterator();
+		while (rowIterator.hasNext()) {
+			String key = null;
+			String value = null;
+			row = rowIterator.next();
+			for (Cell cell : readCellsInrow(row)) {
+				if (cell.getColumnIndex() == 0) {
+					key = cell.getStringCellValue();
+				}
+				if (cell.getColumnIndex() == 1) {
+					value = cell.getStringCellValue();
+				}
+			}
+			if (key != null && value != null) {
+				map.put(key, value);
+			}
+		}	
+		
+		return map;
+		
 	}
 
 }

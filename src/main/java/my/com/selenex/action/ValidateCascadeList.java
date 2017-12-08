@@ -98,7 +98,7 @@ public class ValidateCascadeList {
 
 				}
 			}
-			resultReport.setActual(actualResult.toString());
+			resultReport.setActual(actualResult.substring(0, actualResult.length() -1));
 			resultReport.setResult(result);
 
 		} catch (Exception e) {
@@ -132,7 +132,7 @@ public class ValidateCascadeList {
 			int scenarioSeq) {
 
 		LinkedHashMap<?, ?> cascade = new LinkedHashMap<>();
-		cascade = (LinkedHashMap<?, ?>) annotation.get("cascades");
+		cascade = (LinkedHashMap<?, ?>) annotation.get(Cascade.annotation);
 		return execute (
 				helper,
 				scenario, 

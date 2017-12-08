@@ -14,6 +14,7 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.events.EventFiringWebDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import my.com.selenex.vo.ResultReport;
@@ -281,7 +282,87 @@ public class Helper {
 		return null;
 	}
 
+	/**
+	 * Search the element as specified in scenario
+	 * @param scenario
+	 * @param selectorType
+	 * @return
+	 */
+	public WebElement findElement(Scenario scenario) {
+		if (scenario.getSelectorType().equalsIgnoreCase(Scenario.XPATH)) {
+			getWait().until(ExpectedConditions.visibilityOfElementLocated(By.xpath(scenario.getSelectorString())));
+			return getE_driver().findElement(By.xpath(scenario.getSelectorString()));
+		}
+		else if (scenario.getSelectorType().equalsIgnoreCase(Scenario.CSS)) {
+			getWait().until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(scenario.getSelectorString())));
+			return getE_driver().findElement(By.cssSelector(scenario.getSelectorString()));
+		}
+		else if (scenario.getSelectorType().equalsIgnoreCase(Scenario.ID)) {
+			getWait().until(ExpectedConditions.visibilityOfElementLocated(By.id(scenario.getSelectorString())));
+			return getE_driver().findElement(By.id(scenario.getSelectorString()));
+		}
+		else if (scenario.getSelectorType().equalsIgnoreCase(Scenario.CLASSNAME)) {
+			getWait().until(ExpectedConditions.visibilityOfElementLocated(By.className(scenario.getSelectorString())));
+			return getE_driver().findElement(By.className(scenario.getSelectorString()));
+		}
+		return null;
+	}
 	
+	/**
+	 * Search the item in select element as specified in scenario
+	 * @param scenario
+	 * @param selectorType
+	 * @return
+	 */
+	public Select selectElement(Scenario scenario) {
+		if (scenario.getSelectorType().equalsIgnoreCase(Scenario.XPATH)) {
+			getWait().until(ExpectedConditions.visibilityOfElementLocated(By.xpath(scenario.getSelectorString())));
+			return new Select(driver.findElement(By.xpath(scenario.getSelectorString())));
+		}
+		if (scenario.getSelectorType().equalsIgnoreCase(Scenario.CSS)) {
+			getWait().until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(scenario.getSelectorString())));
+			return new Select(driver.findElement(By.cssSelector(scenario.getSelectorString())));
+		}
+		if (scenario.getSelectorType().equalsIgnoreCase(Scenario.ID)) {
+			getWait().until(ExpectedConditions.visibilityOfElementLocated(By.id(scenario.getSelectorString())));
+			return new Select(driver.findElement(By.id(scenario.getSelectorString())));
+		}
+		if (scenario.getSelectorType().equalsIgnoreCase(Scenario.CLASSNAME)) {
+			getWait().until(ExpectedConditions.visibilityOfElementLocated(By.className(scenario.getSelectorString())));
+			return new Select(driver.findElement(By.className(scenario.getSelectorString())));
+		}
+		
+		return null;
+	}
+	
+	
+	/**
+	 * Enter value as specified in scenario
+	 * @param scenario
+	 * @param inputValue
+	 */
+	public void performInput(Scenario scenario, String inputValue) {
+		if (scenario.getSelectorType().equalsIgnoreCase(Scenario.XPATH)) {
+			getWait().until(ExpectedConditions.visibilityOfElementLocated(By.xpath(scenario.getSelectorString())));
+			getE_driver().findElement(By.xpath(scenario.getSelectorString())).clear();
+			getE_driver().findElement(By.xpath(scenario.getSelectorString())).sendKeys(inputValue);
+		}
+		else if (scenario.getSelectorType().equalsIgnoreCase(Scenario.CSS)) {
+			getWait().until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(scenario.getSelectorString())));
+			getE_driver().findElement(By.cssSelector(scenario.getSelectorString())).clear();
+			getE_driver().findElement(By.cssSelector(scenario.getSelectorString())).sendKeys(inputValue);
+		}
+		else if (scenario.getSelectorType().equalsIgnoreCase(Scenario.ID)) {
+			getWait().until(ExpectedConditions.visibilityOfElementLocated(By.id(scenario.getSelectorString())));
+			getE_driver().findElement(By.id(scenario.getSelectorString())).clear();
+			getE_driver().findElement(By.id(scenario.getSelectorString())).sendKeys(inputValue);
+		}
+		else if (scenario.getSelectorType().equalsIgnoreCase(Scenario.CLASSNAME)) {
+			getWait().until(ExpectedConditions.visibilityOfElementLocated(By.className(scenario.getSelectorString())));
+			getE_driver().findElement(By.className(scenario.getSelectorString())).clear();
+			getE_driver().findElement(By.className(scenario.getSelectorString())).sendKeys(inputValue);
+		}
+	}
 }
 
 

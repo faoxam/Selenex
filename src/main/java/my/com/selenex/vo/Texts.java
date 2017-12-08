@@ -1,37 +1,25 @@
-/**
- * 
- */
 package my.com.selenex.vo;
 
 import org.apache.log4j.Logger;
 
 /**
+ * 
  * @author Fa'izam
  *
  */
-public class Cascade {
+public class Texts {
+	static Logger logger = Logger.getLogger(Texts.class);
 	
-	static Logger logger = Logger.getLogger(Cascade.class);
+	public static final String annotation = "texts";
+	public static final String indicator = "@texts.";
 	
-	public static final String annotation = "cascades";
-	public static final String indicator = "@cascade.";
-	
-	public static final String PARENT = "parent tag";
 	public static final String CHILD = "child";
 	public static final String REGEX = "regex";
 	public static final String REMARK = "remark";
 	
-	private String parent = null;
 	private String child = null;
 	private String regex = null;
 	private String remark = null;
-	
-	public String getParent() {
-		return parent;
-	}
-	public void setParent(String parent) {
-		this.parent = parent;
-	}
 	
 	public String getChild() {
 		return child;
@@ -54,11 +42,6 @@ public class Cascade {
 		this.remark = remark;
 	}
 	
-	
-	@Override
-	public String toString() {
-		return "Cascade [parent=" + parent + ", child=" + child + ", regex=" + regex + ", remark=" + remark + "]";
-	}
 	/**
 	 * 
 	 * @param cascade
@@ -69,16 +52,16 @@ public class Cascade {
 			logger.info("Child cannot been null, " + toString());
 			return false;
 		}
-
-		if (null == this.getParent()) {
-			logger.info("Parent cannot been null, " + toString());
-			return false;
-		}
-		
 		if (null == this.getRegex()) {
 			logger.info("Regex null, change to '', " + toString());
 			this.setRegex("");
 		}
 		return true;
 	}
+	
+	@Override
+	public String toString() {
+		return "Texts [child=" + child + ", regex=" + regex + ", remark=" + remark + "]";
+	}
+	
 }

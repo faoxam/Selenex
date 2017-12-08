@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -13,32 +14,34 @@ import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import my.com.selenex.action.Click;
 
-public class App {
+/**
+ * 
+ * @author Fa'izam
+ *
+ */
+public class SelenexFull {
+
 	static Logger logger = Logger.getLogger(Click.class);
 	
-	private String scenarioPath;
-	private String resultPath;
-	private String actionCfg;
-	private JSONObject actions;
-	
-	private int poolSize = 10;
+	private static String scenarioPath;
+	private static String resultPath;
+	private static String actionCfg;
+	private static JSONObject actions;
 
-	@BeforeClass
-	public void setup() {
-		Config cfg = new Config();
+	private static int poolSize = 10;
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
+	public static void main(String[] args) throws InterruptedException, ExecutionException {
+
+		Config cfg = new Config(args[0]);
 		scenarioPath = cfg.getProperty("input.path");
 		resultPath = cfg.getProperty("output.path");
 		actionCfg = cfg.getProperty("action.config");
-		
-		logger.info("scenarioPath:" + scenarioPath);
-		logger.info("resultPath:" + resultPath);
-		logger.info("actionCfg:" + actionCfg);
-		
+		poolSize = Integer.parseInt(cfg.getProperty("thread.pool"));
+
 		JSONParser parser = new JSONParser();
 		Object obj;
 		try {
@@ -47,12 +50,6 @@ public class App {
 		} catch (IOException | ParseException e) {
 			e.printStackTrace();
 		}
-    }
-	
-	
-	@SuppressWarnings({ "rawtypes", "unchecked" })
-	@Test
-	public void executeTest() throws Exception {
 
 		ExecutorService service = Executors.newFixedThreadPool(poolSize);
 		List<Future<Runnable>> futures = new ArrayList<Future<Runnable>>();
@@ -65,7 +62,7 @@ public class App {
 				continue;
 			}
 
-			Future future = service.submit(new ProcessThread(file, resultPath, actions));
+			Future future = service.submit(new ProcessFullThread(file, resultPath, actions));
 			futures.add(future);
 		}
 
@@ -76,6 +73,5 @@ public class App {
 		// shut down the executor service so that this thread can exit
 		service.shutdownNow();
 	}
-	
-	
+
 }

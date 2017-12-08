@@ -11,7 +11,9 @@ import java.util.Map;
 import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.firefox.FirefoxDriver;
+import org.openqa.selenium.safari.SafariDriver;
 import org.openqa.selenium.support.events.EventFiringWebDriver;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -21,17 +23,20 @@ import com.google.gson.GsonBuilder;
 import my.com.selenex.driver.WebEventListener;
 import my.com.selenex.excel.DataSheet;
 import my.com.selenex.util.Helper;
+import my.com.selenex.vo.Cascade;
 import my.com.selenex.vo.ResultReport;
 import my.com.selenex.vo.Scenario;
+import my.com.selenex.vo.Table;
+import my.com.selenex.vo.Texts;
 
 /**
  * 
  * @author Fa'izam
  *
  */
-public class ProcessThread implements Runnable {
+public class ProcessFullThread implements Runnable {
 	
-	static Logger logger = Logger.getLogger(ProcessThread.class);
+	static Logger logger = Logger.getLogger(ProcessFullThread.class);
 	protected File file;
 	
 	
@@ -43,25 +48,64 @@ public class ProcessThread implements Runnable {
 	private DataSheet ds;
 	private Integer scenarioID = 0;
 	private JSONObject actions;
-
+	Gson gson = new GsonBuilder().setPrettyPrinting().create();
 	
-	public ProcessThread(File file, String resultPath, JSONObject actions) {
+	
+	public ProcessFullThread(File file, String resultPath, JSONObject actions) {
 		this.file = file;
 		this.actions = actions;
 		
 		logger = Logger.getLogger(file.getName());
 		
-		webDriver = new FirefoxDriver();
+		//webDriver = new FirefoxDriver();
+		ds = new DataSheet(file, resultPath);
+
+		initDriver(ds);
 		webDriver.manage().window().maximize();
 		
 		eDriver = new EventFiringWebDriver(webDriver);
 		eListener = new WebEventListener();
 		eDriver.register(eListener);
-		
-
-		ds = new DataSheet(file, resultPath);
-		
 	}
+
+	/**
+	 * 
+	 * @param ds
+	 * @return
+	 */
+	private WebDriver initDriver(DataSheet ds) {
+		
+		Map<?, ?> map = ds.readConfig();
+		logger.info("Config:" +  gson.toJson(map));
+		if (null == map) {
+			webDriver = new ChromeDriver();
+			return webDriver;
+		}
+		String browser = (String) map.get("browser");
+		String driverPath = (String) map.get("driver_path");
+		
+		switch (browser) {
+			case "firefox":
+				System.setProperty("webdriver.gecko.driver", driverPath);
+				webDriver = new FirefoxDriver();
+				break;
+				
+			case "safari":
+				System.setProperty("webdriver.safari.driver", driverPath);
+				webDriver = new SafariDriver();
+				break;
+				
+			case "chrome":
+				System.setProperty("webdriver.chrome.driver", driverPath);
+				webDriver = new ChromeDriver();
+				break;
+			
+			default:
+				break;
+		}
+		return webDriver;
+	}
+	
 
 	/*
 	 * (non-Javadoc)
@@ -83,24 +127,23 @@ public class ProcessThread implements Runnable {
 				logger.info("Preparing TABLE validation list...");
 				LinkedHashMap<?, ?> columnsToValidateList = new LinkedHashMap<>();
 				columnsToValidateList = ds.tableColumnValidationRegex(scenarioSheet);
-				annotations.put("columns", columnsToValidateList);
+				annotations.put(Table.annotation, columnsToValidateList);
 				
+				logger.info("Preparing CASCADES validation list...");
 				LinkedHashMap<?, ?> cascadeElements = new LinkedHashMap<>();
 				cascadeElements = ds.prepareCascadeValidation(scenarioSheet);
-				annotations.put("cascades", cascadeElements);
+				annotations.put(Cascade.annotation, cascadeElements);
 				
+				logger.info("Preparing TEXTS validation list...");
 				LinkedHashMap<?, ?> multiFields = new LinkedHashMap<>();
 				multiFields = ds.prepareMultiFieldsValidation(scenarioSheet);
-				annotations.put("texts", multiFields);
+				annotations.put(Texts.annotation, multiFields);
 				
-				
-				logger.info("3) annotations Map:" + gson.toJson(annotations));
-				
+				logger.info("Input :" + gson.toJson(inputList));
+				logger.info("Annotation :" + gson.toJson(annotations));
 				for (LinkedHashMap<?, ?> input: inputList) {
 					List<Scenario> scenarios = ds.loadScenarioByScenarioSheet(scenarioSheet);
 					logger.info("scenarios:" + scenarios.toString());
-					
-					logger.info("performActivity...");
 					performActivity(ds, scenarios, input, annotations);
 				}
 			}
@@ -118,8 +161,8 @@ public class ProcessThread implements Runnable {
 			e.printStackTrace();
 		}
 		
-		eDriver.close();
-		webDriver.close();
+		//eDriver.close();
+		//webDriver.close();
 	}
 	
 	/*

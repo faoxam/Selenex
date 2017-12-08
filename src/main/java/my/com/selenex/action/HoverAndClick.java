@@ -94,7 +94,7 @@ public class HoverAndClick  {
 			e.printStackTrace();
 		}
 		
-		resultReport.setExpected(expectedStr.toString());
+		resultReport.setExpected(expectedStr.substring(0, expectedStr.length() -1));
 
 		Date end = new Date();
 		resultReport.setEnd(end);

@@ -5,12 +5,13 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.events.AbstractWebDriverEventListener;
 
+import my.com.selenex.action.ValidateRegexTableColumns;
+
 public class WebEventListener extends AbstractWebDriverEventListener {
 	
-	protected Logger logger;
-	public WebEventListener(Logger logger) {
+	static Logger logger = Logger.getLogger(WebEventListener.class);
+	public WebEventListener() {
 		super();
-		this.logger = logger;
 	}
 	
 	

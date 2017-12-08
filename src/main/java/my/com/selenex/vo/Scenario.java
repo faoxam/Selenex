@@ -11,6 +11,11 @@ public class Scenario {
 	
 	static Logger logger = Logger.getLogger(Scenario.class);
 	
+	public static String XPATH = "xpath";
+	public static String CSS = "cssSelector";
+	public static String ID = "id";
+	public static String CLASSNAME = "className";
+	
 	private String scenarioTagged;
 	private String action;
 	private String selectorType;

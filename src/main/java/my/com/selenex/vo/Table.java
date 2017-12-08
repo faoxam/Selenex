@@ -11,6 +11,9 @@ public class Table {
 	
 	static Logger logger = Logger.getLogger(Table.class);
 	
+	public static final String annotation = "columns";
+	public static final String indicator = "@table.";
+	
 	public static final String KEY = "key";
 	public static final String REGEX = "regex";
 	public static final String REMARK = "remark";

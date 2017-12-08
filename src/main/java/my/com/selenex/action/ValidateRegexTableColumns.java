@@ -10,7 +10,6 @@ import java.util.regex.Pattern;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.ui.ExpectedConditions;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -60,23 +59,7 @@ public class ValidateRegexTableColumns {
 		resultReport.setStart(start);
 		resultReport.setExpected(scenario.getValue());
 		try {
-			WebElement tbody = null;
-			if (scenario.getSelectorType().equalsIgnoreCase("xpath")) {
-				helper.getWait().until(ExpectedConditions.visibilityOfElementLocated(By.xpath(scenario.getSelectorString())));
-				tbody = helper.getE_driver().findElement(By.xpath(scenario.getSelectorString()));
-			}
-			else if (scenario.getSelectorType().equalsIgnoreCase("cssSelector")) {
-				helper.getWait().until(ExpectedConditions.visibilityOfElementLocated(By.cssSelector(scenario.getSelectorString())));
-				tbody = helper.getE_driver().findElement(By.cssSelector(scenario.getSelectorString()));
-			}
-			else if (scenario.getSelectorType().equalsIgnoreCase("id")) {
-				helper.getWait().until(ExpectedConditions.visibilityOfElementLocated(By.id(scenario.getSelectorString())));
-				tbody = helper.getE_driver().findElement(By.id(scenario.getSelectorString()));
-			}
-			else if (scenario.getSelectorType().equalsIgnoreCase("className")) {
-				helper.getWait().until(ExpectedConditions.visibilityOfElementLocated(By.className(scenario.getSelectorString())));
-				tbody = helper.getE_driver().findElement(By.className(scenario.getSelectorString()));
-			}
+			WebElement tbody = helper.findElement(scenario);
 			
 			List<WebElement> eList = tbody.findElements(By.tagName("tr"));
 			//logger.info("Elements (TR): " + tbody.findElements(By.tagName("tr")));
@@ -132,7 +115,7 @@ public class ValidateRegexTableColumns {
 				
 				
 			}
-			resultReport.setActual(actualResult.toString());
+			resultReport.setActual(actualResult.substring(0, actualResult.length() -1));
 			resultReport.setResult(result);
 			
 		} catch (Exception e) {
@@ -170,7 +153,7 @@ public class ValidateRegexTableColumns {
 		logger.info("Map:" + gson.toJson(annotation));
 		
 		LinkedHashMap<?, ?> column = new LinkedHashMap<>();
-		column = (LinkedHashMap<?, ?>) annotation.get("columns");
+		column = (LinkedHashMap<?, ?>) annotation.get(Table.annotation);
 		return execute (
 				helper,
 				scenario, 
