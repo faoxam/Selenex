@@ -1,5 +1,6 @@
 SELEN-EX
 =========
+
 What is selenex?
 Selenex is a framework re-write from Selenium Web Driver to automate the Web application testing by executing the scenario driven
 Selenex read driven scenario written in excel, process and generate the test result in excel
@@ -19,49 +20,62 @@ selenex for complex scenarios.
 
 
 ---------------------------------------------------------------------------------
-0. [[$config$]]
+
+EXCEL TEMPLATE
+==============
+
+1.$config$
+-----------
 This will be use to specified the location of browser type, browser driver path, browser profiles
 Support execute concurrently for different profiles but limited to single type of browser.
 
-[[Available component in $config$ ]]
-#Driver properties             [This indicate the browser configuration]
+Available component in $config$
+#Driver properties       [This indicate the browser configuration]
 browser                  [Browser type, Firefox, IE, Safari, Chrome or etc ]
-driver_path                 [Selenium browser Driver location]        
-profile_path                 [Profile path indicate different browser configurtaion]
+driver_path              [Selenium browser Driver location]        
+profile_path             [Profile path indicate different browser configurtaion]
+
 You may able to specified the number of different profiles to be execute simultaneously using "&" referencial
 Syntax "&<SheetName>.<ColumnHeader>"
  
------------------------------------------------------
+--------------------------------------------------------------------------------
 
-1. [[Available Selector Type]]
-1) xpath                 [XPATH string - Recommended because it was unique value for each element]
-2) id                        [Element ID - Only the ID unique in the page]
-3) cssselector          [CSS path string - Also recommended as it was unique for each element, however a bit complex compare to XPATH]
-4) name                        [Element name - Only the name unique in the page]
-5) tagname              [Element tagname, eg. select, span, anchor or etc - Only the tagname unique in the page]
-6) partiallinktext         [Use for href]
-7) linktext                   [Use for href]
-8) classname                   [Element class- Only the tagname unique in the page]
+2.Available Selector Type
+--------------------------
+1) xpath          [XPATH string - Recommended because it was unique value for each element]
+2) id             [Element ID - Only the ID unique in the page]
+3) cssselector    [CSS path string - Also recommended as it was unique for each element, however a bit complex compare to XPATH]
+4) name           [Element name - Only the name unique in the page]
+5) tagname        [Element tagname, eg. select, span, anchor or etc - Only the tagname unique in the page]
+6) partiallinktext   [Use for href]
+7) linktext          [Use for href]
+8) classname         [Element class- Only the tagname unique in the page]
 
 
-2. [[Scenario Header]]
-Action           - Refer item 3. [[Supported Action]] for for all supported keyword        
+3.Scenario Header
+------------------
+Action               - Refer item 3. [[Supported Action]] for for all supported keyword        
 Selector Type        - Refer item 1. [[Available Selector Type]] for all suppported keyword
-Selector String - This is the string value indicated the element. The format depend on th value of Selector Type
+Selector String      - This is the string value indicated the element. The format depend on th value of Selector Type
 Value                - Input value or expected result
-Note                - This will appear in Excel result
+Note                 - This will appear in Excel result
 
 
---------------------------------------------------------
-3. [[Supported Action]]
+--------------------------------------------------------------------------------
+
+Supported Action
+================
+
 Refer "action.cfg" for all supported action keyword
 
-[Keyword: browse]
+Keyword: browse
+---------------
 This to automate the user to browse to given URL in selector string
 Selector Type must be "URL"
 The URL need to set in Selector String column
 
-[Keyword: input]
+Keyword: input
+--------------
 This to automate the user input.
 
 Main
@@ -73,25 +87,30 @@ Syntax: "&<SheetName>.<ColumnHeader>"
 Child
 <SheetName> must consist <ColumnHeader> as header and Input value in the below of the <Colum-Name> header.
 
-[Keyword: click]
+Keyword: click
+--------------
 Click on the given element stated at Selector String column
 
-[Keyword: hover]
+Keyword: hover
+--------------
 Automate Hovering
 Use <Alt> + <Enter> at Value column to add more than 1 value to hover in sequence
 
-[Keyword: hover-and-click]
+Keyword: hover-and-click
+------------------------
 Automate Hovering and and click (in sequence)
 Use <Alt> + <Enter> at Value column to add another XPAT
 The
 
 
-[Keyword: validate-text]
+Keyword: validate-text
+----------------------
 Validate single text element in a page
 Support regex pattern for expected text
  
 
-[Keyword: validate-texts]
+Keyword: validate-texts
+-----------------------
 Validate a list of texts for multiple element in a page
 Support regex pattern for expected text
 
@@ -111,7 +130,8 @@ Child
 
 
 
-[Keyword: validate-column]
+Keyword: validate-column
+------------------------
 This will be use to validate the Table contents
 
 Main
@@ -126,7 +146,8 @@ Remark        - This will be shown in Excel Result
 
 
 
-[Keyword: validate-cascade]
+Keyword: validate-cascade
+-------------------------
 This to validate the repeatable Boxes in the pages
 
 Main
@@ -139,21 +160,24 @@ Child                - XPATH of the child location after the parent tag
 Regex                - Expected result
 Remark                - This will be shown in Excel Result
 
-[Keyword: is-exist]
+Keyword: is-exist
+-----------------
 Ensure the value is exist on specified element
     Accept annotation in scenario.value column as below
     "@value." - By value in component
     "@text."  - By visible text in component
     Default (No annotation specified) will use By visible text
 
-[Keyword: is-not-exist]
+Keyword: is-not-exist
+---------------------
 Ensure the value does not exist on specified element
     Accept annotation in scenario.value column as below
     "@value." - By value in component
     "@text."  - By visible text in component
     Default (No annotation specified) will use By visible text
 
-[Keyword: select]
+Keyword: select
+---------------
     Automate the SELECT (Single) from Drop-Down or Combo-Box list
     The value specified in value separated by "new line" in excel box
     Accept annotation in scenario.value column as below
@@ -162,7 +186,8 @@ Ensure the value does not exist on specified element
     "@index." - By index count in component
     Default (No annotation specified) will use By visible text
 
-[Keyword: selects]
+Keyword: selects
+----------------
     Automate the SELECT (Multiple) from Drop-Down or Combo-Box list
     The value specified in value separated by "new line" in excel box
     Accept annotation in scenario.value column as below
@@ -171,7 +196,8 @@ Ensure the value does not exist on specified element
     "@index." - By index count in component
     Default (No annotation specified) will use By visible text
 
-[Keyword: is-select]
+Keyword: is-select
+------------------
     Validate the value (Single) of selected in Drop-Down or Combo-Box
     Accept annotation in scenario.value column as below
     "@value."          - By value in component
@@ -179,7 +205,8 @@ Ensure the value does not exist on specified element
     "@index."        - By index count in component
     Default (No annotation specified) will use By visible text
 
-[Keyword: is-selects]
+Keyword: is-selects
+-------------------
     Validate the value (Multiple) of selected in Drop-Down or Combo-Box
     Use <Alt> + <Enter> at Value column to add more than 1 value to validate
     The value specified in value separated by "new line" in excel box
@@ -189,7 +216,8 @@ Ensure the value does not exist on specified element
     "@index."        - By index count in component
     Default (No annotation specified) will use By visible text
 
-[Keyword: is-not-select]
+Keyword: is-not-select
+----------------------
     Ensure the specified value NOT being selected from Drop-Down or Combo-Box list
     Accept annotation in scenario.value column as below
     "@value." - By value in component
@@ -197,7 +225,8 @@ Ensure the value does not exist on specified element
     "@index." - By index count in component
     Default (No annotation specified) will use By visible text
 
-[Keyword: is-not-selects]
+Keyword: is-not-selects
+-----------------------
     Ensure NONE of specified value NOT being selected from Drop-Down or Combo-Box list
     The value specified in value separated by "new line" in excel box
     Accept annotation in scenario.value column as below
@@ -206,7 +235,8 @@ Ensure the value does not exist on specified element
     "@index." - By index count in component
     Default (No annotation specified) will use By visible text
 
-[Keyword: select-radio]
+Keyword: select-radio
+---------------------
     Automate the SELECT from radio button group
     Accept annotation in scenario.value column as below
     "@value." - By.value locator
@@ -218,7 +248,8 @@ Ensure the value does not exist on specified element
     "@css." - By.css locator
     Default (No annotation specified) will use By.linkText
 
-[Keyword: is-radio-selected]
+Keyword: is-radio-selected
+--------------------------
     Validate the give value from radio button group is NOT selected
     Accept annotation in scenario.value column as below
     "@value." - By.value locator
@@ -230,7 +261,8 @@ Ensure the value does not exist on specified element
     "@css." - By.css locator
     Default (No annotation specified) will use By.linkText
 
-[Keyword: is-radio-not-selected]
+Keyword: is-radio-not-selected
+------------------------------
     Ensure the specified value in from radio button group
     Accept annotation in scenario.value column as below
     "@value." - By.value locator
